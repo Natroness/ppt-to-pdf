@@ -114,10 +114,18 @@ async function mergeSlidesPerPage(pdfPath, slidesPerPage) {
   for (let i = 0; i < totalPages; i += slidesPerPage) {
     const newPage = newPdfDoc.addPage([pageWidth, pageHeight]);
     
-    // Embed pages for this batch
+    // Collect page indices for this batch
+    const pageIndices = [];
     for (let j = 0; j < slidesPerPage && (i + j) < totalPages; j++) {
-      const sourcePage = pages[i + j];
-      const [embeddedPage] = await newPdfDoc.embedPage(sourcePage);
+      pageIndices.push(i + j);
+    }
+    
+    // Copy pages from source document
+    const copiedPages = await newPdfDoc.copyPages(pdfDoc, pageIndices);
+    
+    // Draw each copied page onto the merged page
+    for (let j = 0; j < copiedPages.length; j++) {
+      const copiedPage = copiedPages[j];
       
       // Calculate position
       const col = j % cols;
@@ -126,7 +134,7 @@ async function mergeSlidesPerPage(pdfPath, slidesPerPage) {
       const y = pageHeight - (padding + (row + 1) * (slideHeight + padding));
       
       // Get source page dimensions
-      const sourceSize = sourcePage.getSize();
+      const sourceSize = copiedPage.getSize();
       const sourceWidth = sourceSize.width;
       const sourceHeight = sourceSize.height;
       
@@ -141,7 +149,8 @@ async function mergeSlidesPerPage(pdfPath, slidesPerPage) {
       const offsetX = (slideWidth - scaledWidth) / 2;
       const offsetY = (slideHeight - scaledHeight) / 2;
       
-      newPage.drawPage(embeddedPage, {
+      // Draw the copied page onto the merged page
+      newPage.drawPage(copiedPage, {
         x: x + offsetX,
         y: y + offsetY,
         width: scaledWidth,
