@@ -1,0 +1,15 @@
+{
+  "name": "pptx-to-pdf-converter",
+  "version": "1.0.0",
+  "description": "A professional-grade Node.js backend that converts PowerPoint (.pptx) files to compact, printable PDFs using LibreOffice in headless mode.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "multer": "^1.4.5-lts.1",
+    "cors": "^2.8.5"
+  }
+}
