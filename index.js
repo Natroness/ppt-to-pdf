@@ -196,13 +196,8 @@ app.post('/convert', upload.single('file'), async (req, res) => {
   const file = req.file;
   if (!file) return res.status(400).json({ error: 'No file uploaded.' });
 
-  // Get slides per page from request (default to 1)
-  const slidesPerPage = parseInt(req.body.slidesPerPage || req.query.slidesPerPage || '1');
-  const validSlidesPerPage = [1, 2, 3, 4, 6, 9];
-  if (!validSlidesPerPage.includes(slidesPerPage)) {
-    cleanupFile(file.path);
-    return res.status(400).json({ error: 'Invalid slidesPerPage. Must be 1, 2, 3, 4, 6, or 9.' });
-  }
+  const slidesPerPage = 1; // Always 1 slide per page
+
 
   const inputPath = path.resolve(file.path);
   const outputDir = path.resolve('converted');
