@@ -15,6 +15,14 @@ A Node.js tool that converts PowerPoint presentations (`.pptx` / `.ppt`) into co
 ## Quick Start
 
 ### 1. Clone the repo
-```bash
-git clone https://github.com/your-username/ppt-to-pdf.git
-cd ppt-to-pdf
+
+`git clone https://github.com/your-username/ppt-to-pdf.git
+cd ppt-to-pdf`
+
+### 2. Install dependencies
+
+`npm install`
+
+### 3. Start server
+
+`npm start`
