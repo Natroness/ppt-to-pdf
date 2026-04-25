@@ -175,7 +175,7 @@ app.post('/convert', upload.single('file'), async (req, res) => {
 
   const inputPath = path.resolve(file.path);
   const outputDir = path.resolve('converted');
-  const baseFileName = file.originalname.replace(/\.pptx$/i, '');
+  const baseFileName = file.originalname.replace(/\.ppt(x)?$/i, '');
   const tempPdfPath = path.join(outputDir, `${baseFileName}_temp.pdf`);
   const optimizedPdfPath = path.join(outputDir, `${baseFileName}_optimized.pdf`);
   const finalPdfPath = path.join(outputDir, `${baseFileName}.pdf`);

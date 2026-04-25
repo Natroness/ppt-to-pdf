@@ -252,8 +252,8 @@
         <div class="upload-area" id="uploadArea">
             <div class="upload-icon">📤</div>
             <div class="upload-text">Click to upload or drag and drop</div>
-            <div class="upload-hint">PPTX files only</div>
-            <input type="file" id="fileInput" accept=".pptx" />
+            <div class="upload-hint">PPTX/PPT files</div>
+            <input type="file" id="fileInput" accept=".pptx,.ppt" />
         </div>
 
         <div class="file-info" id="fileInfo">
@@ -322,7 +322,7 @@
         });
 
         function handleFile(file) {
-            if (!file.name.toLowerCase().endsWith('.pptx')) {
+            if (!file.name.toLowerCase().endsWith('.pptx') && !file.name.toLowerCase().endsWith('.ppt')) {
                 showStatus('Please select a .pptx file', 'error');
                 return;
             }
@@ -368,7 +368,7 @@
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = selectedFile.name.replace('.pptx', '.pdf');
+                    a.download = selectedFile.name.replace(/\.pptx?$/i, '.pdf');
                     document.body.appendChild(a);
                     a.click();
                     window.URL.revokeObjectURL(url);
@@ -413,5 +413,8 @@
     </script>
 </body>
 </html>
+
+
+
 
 
