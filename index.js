@@ -60,7 +60,7 @@ const getLibreOfficeCommand = () => {
   }
   
   // Default fallback
-  return 'libreoffice';
+  return 'soffice.exe';
 };
 
 const libreOfficeCmd = getLibreOfficeCommand();
@@ -92,65 +92,40 @@ async function mergeSlidesPerPage(pdfPath, slidesPerPage) {
   const pdfDoc = await PDFDocument.load(existingPdfBytes);
   const pages = pdfDoc.getPages();
   const totalPages = pages.length;
-  
-  // Create new PDF document
   const newPdfDoc = await PDFDocument.create();
-  
-  // Calculate grid layout
   const grid = getGridLayout(slidesPerPage);
   const cols = grid.cols;
   const rows = grid.rows;
-  
-  // Standard US Letter size (8.5 x 11 inches) in points
-  const pageWidth = 612;  // 8.5 * 72
-  const pageHeight = 792; // 11 * 72
-  
-  // Calculate slide dimensions with padding
+  const pageWidth = 612;
+  const pageHeight = 792;
   const padding = 10;
   const slideWidth = (pageWidth - padding * (cols + 1)) / cols;
   const slideHeight = (pageHeight - padding * (rows + 1)) / rows;
-  
-  // Process pages in batches
+  const embeddedPages = await newPdfDoc.embedPages(pages);
   for (let i = 0; i < totalPages; i += slidesPerPage) {
     const newPage = newPdfDoc.addPage([pageWidth, pageHeight]);
-    
-    // Collect page indices for this batch
     const pageIndices = [];
     for (let j = 0; j < slidesPerPage && (i + j) < totalPages; j++) {
       pageIndices.push(i + j);
     }
-    
-    // Copy pages from source document
-    const copiedPages = await newPdfDoc.copyPages(pdfDoc, pageIndices);
-    
-    // Draw each copied page onto the merged page
-    for (let j = 0; j < copiedPages.length; j++) {
-      const copiedPage = copiedPages[j];
-      
-      // Calculate position
+    for (let j = 0; j < pageIndices.length; j++) {
+      const idx = pageIndices[j];
+      const embeddedPage = embeddedPages[idx];
       const col = j % cols;
       const row = Math.floor(j / cols);
       const x = padding + col * (slideWidth + padding);
       const y = pageHeight - (padding + (row + 1) * (slideHeight + padding));
-      
-      // Get source page dimensions
-      const sourceSize = copiedPage.getSize();
+      const sourceSize = embeddedPage.size();
       const sourceWidth = sourceSize.width;
       const sourceHeight = sourceSize.height;
-      
-      // Calculate scale to fit within allocated space
       const scaleX = slideWidth / sourceWidth;
       const scaleY = slideHeight / sourceHeight;
       const scale = Math.min(scaleX, scaleY);
-      
-      // Center the scaled slide
       const scaledWidth = sourceWidth * scale;
       const scaledHeight = sourceHeight * scale;
       const offsetX = (slideWidth - scaledWidth) / 2;
       const offsetY = (slideHeight - scaledHeight) / 2;
-      
-      // Draw the copied page onto the merged page
-      newPage.drawPage(copiedPage, {
+      newPage.drawPage(embeddedPage, {
         x: x + offsetX,
         y: y + offsetY,
         width: scaledWidth,
@@ -158,7 +133,6 @@ async function mergeSlidesPerPage(pdfPath, slidesPerPage) {
       });
     }
   }
-  
   return await newPdfDoc.save();
 }
 
@@ -196,7 +170,7 @@ app.post('/convert', upload.single('file'), async (req, res) => {
   const file = req.file;
   if (!file) return res.status(400).json({ error: 'No file uploaded.' });
 
-  const slidesPerPage = 1; // Always 1 slide per page
+  const slidesPerPage = parseInt(req.body.slidesPerPage) || 1;
 
 
   const inputPath = path.resolve(file.path);
@@ -330,4 +304,5 @@ app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
   console.log('💡 Make sure LibreOffice is installed and accessible in your PATH');
 });
+
 
